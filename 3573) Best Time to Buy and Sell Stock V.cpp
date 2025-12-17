@@ -46,7 +46,40 @@ Constraints:
 */
 class Solution {
 public:
-    long long maximumProfit(vector<int>& prices, int k) {
-        
+    long long maxProfit(int k, vector<int>& prices) {
+        int n = prices.size();
+        const long long NEG = -1e18;
+
+        vector<long long> free(k + 1, NEG),
+                          longPos(k + 1, NEG),
+                          shortPos(k + 1, NEG);
+
+        free[0] = 0;
+
+        for (int price : prices) {
+            for (int t = k; t >= 0; --t) {
+                // Open positions
+                if (free[t] != NEG) {
+                    longPos[t] = max(longPos[t], free[t] - price);
+                    shortPos[t] = max(shortPos[t], free[t] + price);
+                }
+
+                // Close positions
+                if (t + 1 <= k) {
+                    if (longPos[t] != NEG)
+                        free[t + 1] = max(free[t + 1], longPos[t] + price);
+
+                    if (shortPos[t] != NEG)
+                        free[t + 1] = max(free[t + 1], shortPos[t] - price);
+                }
+            }
+        }
+
+        long long ans = 0;
+        for (int t = 0; t <= k; ++t)
+            ans = max(ans, free[t]);
+
+        return ans;
     }
 };
+
